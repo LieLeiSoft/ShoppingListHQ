@@ -15,6 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
+import android.widget.AbsListView;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         dataSource = new ShoppingMemoDataSource(this);
 
         activateAddButton();
+        initializeContextualActionBar();
     }
 
     @Override
@@ -122,4 +127,65 @@ public class MainActivity extends AppCompatActivity {
         ListView shoppingMemosListView = (ListView) findViewById(R.id.listview_shopping_memos);
         shoppingMemosListView.setAdapter(shoppingMemoArrayAdapter);
     }
+
+    private void initializeContextualActionBar() {
+
+        final ListView shoppingMemosListView = (ListView) findViewById(R.id.listview_shopping_memos);
+        shoppingMemosListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
+        shoppingMemosListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                // Hier können wir auf das Auswählen von Einträgen reagieren und den Text in
+                // der CAB daran anpassen, bspw. Anzahl der ausgewählten Einträge aktualisieren.
+                // Von hier kann ein mode.invalidate() angefordert werden.
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Das Menü der CAB mit Actions füllen.
+                getMenuInflater().inflate(R.menu.menu_contextual_action_bar, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // Hier können wir Updates an der CAB vornehmen, indem wir auf
+                // eine invalidate() Anfrage reagieren.
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Hier können wir auf Klicks auf CAB-Actions reagieren.
+                switch (item.getItemId()) {
+
+                    case R.id.cab_delete:
+                        SparseBooleanArray touchedShoppingMemosPositions = shoppingMemosListView.getCheckedItemPositions();
+                        for (int i=0; i < touchedShoppingMemosPositions.size(); i++) {
+                            boolean isChecked = touchedShoppingMemosPositions.valueAt(i);
+                            if(isChecked) {
+                                int postitionInListView = touchedShoppingMemosPositions.keyAt(i);
+                                ShoppingMemo shoppingMemo = (ShoppingMemo) shoppingMemosListView.getItemAtPosition(postitionInListView);
+                                Log.d(LOG_TAG, "Position im ListView: " + postitionInListView + " Inhalt: " + shoppingMemo.toString());
+                                dataSource.deleteShoppingMemo(shoppingMemo);
+                            }
+                        }
+                        showAllListEntries();
+                        mode.finish();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // Hier können wir Aktualisierungen an der Activity vornehmen, wenn die CAB
+                // entfernt wird. Standardmäßig werden die ausgewählten Einträge wieder freigegeben.
+            }
+        });
+    } // initializeContextualActionBar
 }
