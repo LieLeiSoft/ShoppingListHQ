@@ -49,4 +49,4 @@ public class ShoppingMemo {
 
         return output;
     }
-}
+} // ShoppingMemo

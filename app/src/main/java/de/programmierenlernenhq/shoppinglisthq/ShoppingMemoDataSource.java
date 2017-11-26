@@ -65,7 +65,28 @@ public class ShoppingMemoDataSource {
         cursor.close();
 
         return shoppingMemo;
-    }
+    } // createShoppingMemo
+
+    public ShoppingMemo updateShoppingMemo(long id, String newProduct, int newQuantity) {
+        ContentValues values = new ContentValues();
+        values.put(ShoppingMemoDbHelper.COLUMN_PRODUCT, newProduct);
+        values.put(ShoppingMemoDbHelper.COLUMN_QUANTITY, newQuantity);
+
+        database.update(ShoppingMemoDbHelper.TABLE_SHOPPING_LIST,
+                values,
+                ShoppingMemoDbHelper.COLUMN_ID + "=" + id,
+                null);
+
+        Cursor cursor = database.query(ShoppingMemoDbHelper.TABLE_SHOPPING_LIST,
+                columns, ShoppingMemoDbHelper.COLUMN_ID + "=" + id,
+                null, null, null, null);
+
+        cursor.moveToFirst();
+        ShoppingMemo shoppingMemo = cursorToShoppingMemo(cursor);
+        cursor.close();
+
+        return shoppingMemo;
+    } // updateShoppingMemo
 
     public void deleteShoppingMemo(ShoppingMemo shoppingMemo) {
         long id = shoppingMemo.getId();
@@ -75,7 +96,7 @@ public class ShoppingMemoDataSource {
                 null);
 
         Log.d(LOG_TAG, "Eintrag gelöscht! ID: " + id + " Inhalt: " + shoppingMemo.toString());
-    }
+    } // deleteShoppingMemo
 
     private ShoppingMemo cursorToShoppingMemo(Cursor cursor) {
         int idIndex = cursor.getColumnIndex(ShoppingMemoDbHelper.COLUMN_ID);
@@ -89,7 +110,7 @@ public class ShoppingMemoDataSource {
         ShoppingMemo shoppingMemo = new ShoppingMemo(product, quantity, id);
 
         return shoppingMemo;
-    }
+    } // cursorToShoppingMemo
 
     public List<ShoppingMemo> getAllShoppingMemos() {
         List<ShoppingMemo> shoppingMemoList = new ArrayList<>();
@@ -110,5 +131,5 @@ public class ShoppingMemoDataSource {
         cursor.close();
 
         return shoppingMemoList;
-    }
-}
+    } // getAllShoppingMemos
+} // ShoppingMemoDataSource

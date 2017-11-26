@@ -34,26 +34,27 @@ public class ShoppingMemoDbHelper extends SQLiteOpenHelper{
                     COLUMN_QUANTITY + " INTEGER NOT NULL);";
 
 
-    public ShoppingMemoDbHelper(Context context) {
-        //super(context, "PLATZHALTER_DATENBANKNAME", null, 1);
-        super(context, DB_NAME, null, DB_VERSION);
-        Log.d(LOG_TAG, "DbHelper hat die Datenbank: " + getDatabaseName() + " erzeugt.");
-    }
-
     // Die onCreate-Methode wird nur aufgerufen, falls die Datenbank noch nicht existiert
     @Override
     public void onCreate(SQLiteDatabase db) {
         try {
             Log.d(LOG_TAG, "Die Tabelle wird mit SQL-Befehl: " + SQL_CREATE + " angelegt.");
             db.execSQL(SQL_CREATE);
-        }
+        } // try
         catch (Exception ex) {
             Log.e(LOG_TAG, "Fehler beim Anlegen der Tabelle: " + ex.getMessage());
-        }
-    }
+        } // catch
+    } // onCreate
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-    }
-}
+    } // onUpgrade
+
+    public ShoppingMemoDbHelper(Context context) {
+        //super(context, "PLATZHALTER_DATENBANKNAME", null, 1);
+        super(context, DB_NAME, null, DB_VERSION);
+        Log.d(LOG_TAG, "DbHelper hat die Datenbank: " + getDatabaseName() + " erzeugt.");
+    } // ShoppingMemoDbHelper
+
+} // ShoppingMemoDbHelper
